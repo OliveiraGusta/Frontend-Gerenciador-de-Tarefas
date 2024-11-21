@@ -16,7 +16,7 @@
         </form>
       </div>
 
-      <div v-if="2 == 1">
+      <div v-show="false">
         <h1 class="text-xl font-bold my-3 gap-2">Cores</h1>
         <div>
           <form class="space-y-2">
@@ -39,45 +39,23 @@
         </div>
     </div>
     </CardContent>
+    
     <CardFooter class="flex flex-col items-center ">
-      <Button variant="outline" class="px-10"  @click="submit" >
-        <img src="@/assets/icons/CheckIcon.svg" class="h-6"/>
-        Começar 
+      <h1 v-if="showErrorLogin" class="self-start my-4 text-red-700">Email ou senha incorretos</h1>
+      <Button v-if="!isLoading" variant="outline"  @click="submit" >
+        <img src="@/assets/icons/CheckIcon.svg" class="h-6"/>Começar 
       </Button>
+
+      <Button v-if="isLoading" disabled>
+        <img src="@/assets/icons/AwaitIcon.svg" class="h-6 animate-spin" />Aguarde
+      </Button>
+
     </CardFooter>
   </Card>
 
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import axios from 'axios'; 
-import { useRouter } from 'vue-router';
-const router = useRouter();
-
-
-function goToSignUp() {
-  router.push('/signUp');
-}
-
-
-
-const email = ref('');
-const password = ref('');
-
-async function submit() {
-  const data = { email: email.value, password: password.value };
-
-  try {
-    const response = await axios.post('/login', data);
-    console.log('Resposta do servidor:', response.data);
-    localStorage.setItem('token', response.data.acess_token);
-  } catch (error) {
-    console.error('Erro ao fazer login:', error);
-  }
-}
-
-
 import {
   Card,
   CardContent,
@@ -90,5 +68,32 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { UserPhoto } from '../ui/userPhoto';
+
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import { authService } from '@/services/authService'; 
+
+const router = useRouter();
+function goToSignUp() {
+  router.push('/signup');
+}
+
+const isLoading = ref(false);
+const showErrorLogin = ref(false);
+const email = ref<string>('');
+const password = ref<string>('');
+async function submit() {
+  isLoading.value = true;
+  try {
+    const response = await authService.login(email.value, password.value);
+    localStorage.setItem('token', response.access_token); 
+    router.push('/home'); 
+  } catch (error) {
+    console.error('Erro ao fazer login:', error);
+    showErrorLogin.value = true;
+  } finally {
+    isLoading.value = false;
+  }
+}
 
 </script>

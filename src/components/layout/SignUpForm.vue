@@ -11,7 +11,7 @@
     <CardContent>
       <h1 class="text-xl font-bold my-4">Perfil</h1>
       <div class="gap-5 flex ">
-        <UserPhoto v-if="!github" />
+        <UserPhoto v-if="!githubUsername" />
       <img
         v-else
         :src="githubAvatar"
@@ -24,7 +24,7 @@
           <Input type="text" v-model="name" class="my-2" placeholder="Seu nome" />
           <Input type="email" v-model="email" class="my-2" placeholder="Seu email" />
           <label>
-            <Input type="text" v-model="github" class="my-2" placeholder="Seu github" />
+            <Input type="text" v-model="githubUsername" class="my-2" placeholder="Seu github" />
             <p class="text-xs">Caso não tenha uma conta Github apenas deixe em branco</p>
           </label>
 
@@ -36,13 +36,16 @@
     <CardFooter class="flex flex-col gap-4 items-start">
       <div v-if="errors.length" class="flex flex-col gap-4 items-start">
       <h1 class="text-xl font-bold">Erros</h1>
-      <div class="self-start text-red-800">
+      <div class="self-start text-red-700">
         <li v-for="(error, index) in errors" :key="index">{{ error }}</li>
       </div>
     </div>
-      <Button variant="outline" class="px-10 self-center" @click="submit">
-        <img src="@/assets/icons/UserAddIcon.svg" class="h-6" />
-        Cadastrar
+     <Button v-if="!isLoading" class="self-center" variant="outline"  @click="submit" >
+        <img src="@/assets/icons/CheckIcon.svg" class="h-6"/>Cadastrar 
+      </Button>
+
+      <Button v-if="isLoading" class="self-center" disabled>
+        <img src="@/assets/icons/AwaitIcon.svg" class="h-6 animate-spin" />Aguarde
       </Button>
     </CardFooter>
   </Card>
@@ -72,22 +75,22 @@ function goToLogin() {
 
 const name = ref('');
 const email = ref('');
-const github = ref('');
+const githubUsername = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 const errors = ref<string[]>([]);
 
 const fallbackAvatar = './src/assets/UserIcon.png';
-
 function handleImageError(event: Event) {
   const img = event.target as HTMLImageElement;
   img.src = fallbackAvatar;
 }
 
 const githubAvatar = computed(() => {
-  return github.value ? `https://github.com/${github.value}.png` : '';
+  return githubUsername.value ? `https://github.com/${githubUsername.value}.png` : '';
 });
 
+const isLoading = ref(false);
 function validateForm() {
   errors.value = []; 
 
@@ -100,6 +103,7 @@ function validateForm() {
   }
 }
 
+const showErrorLogin = ref(false);
 async function submit() {
   validateForm();
 
@@ -108,14 +112,26 @@ async function submit() {
     return;
   }
 
-  const data = { name: name.value, email: email.value, password: password.value, github: github.value };
+  isLoading.value = true; 
+
+  const data = {
+    name: name.value,
+    email: email.value,
+    password: password.value,
+    githubUsername: githubUsername.value,
+  };
 
   try {
-    const response = await axios.post('/signup', data);
+    const response = await axios.post('http://localhost:8000/api/register', data);
     console.log('Resposta do servidor:', response.data);
-    localStorage.setItem('token', response.data.acess_token);
+    localStorage.setItem('token', response.data.access_token); 
+    router.push('/home');  
   } catch (error) {
-    console.error('Erro ao fazer login:', error);
+    console.error('Erro ao cadastrar:', error);
+    showErrorLogin.value = true;  
+  } finally {
+    isLoading.value = false; 
   }
 }
+
 </script>
