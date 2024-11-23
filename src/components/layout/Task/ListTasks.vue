@@ -90,7 +90,8 @@ export default {
     const token = localStorage.getItem('token')
 
     const fetchTasks = async () => {
-      if (userStore.userState.user && userStore.userState.token) {
+      if (userStore.userState.user && token) {
+        
         try {
           tasks.value = await TaskModel.getTasks(userStore.userState.user.id, token); 
         } catch (error) {
