@@ -11,15 +11,7 @@
     <CardContent>
       <h1 class="text-xl font-bold my-4">Perfil</h1>
       <div class="gap-5 flex ">
-        <UserPhoto v-if="!githubUsername" />
-      <img
-        v-else
-        :src="githubAvatar"
-        alt="Logo"
-        class="h-32 rounded-full border-2 border-[#363636]"
-        @error="handleImageError"
-      />
-         
+        <UserPhoto class="h-28" :githubUsername="githubUsername" :hasGithub="hasGithubUsername"  />
         <form>
           <Input type="text" v-model="name" class="my-2" placeholder="Seu nome" />
           <Input type="email" v-model="email" class="my-2" placeholder="Seu email" />
@@ -53,7 +45,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-import axios from 'axios';
 import {
   Card,
   CardContent,
@@ -62,13 +53,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { UserPhoto } from '../ui/userPhoto';
+import { UserPhoto } from '../../ui/userPhoto';
 import { useRouter } from 'vue-router';
+import { authService } from '@/services/authService';
 
 const router = useRouter();
-
 function goToLogin() {
   router.push('/login');
 }
@@ -79,58 +71,71 @@ const githubUsername = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 const errors = ref<string[]>([]);
-
-const fallbackAvatar = './src/assets/UserIcon.png';
-function handleImageError(event: Event) {
-  const img = event.target as HTMLImageElement;
-  img.src = fallbackAvatar;
-}
-
-const githubAvatar = computed(() => {
-  return githubUsername.value ? `https://github.com/${githubUsername.value}.png` : '';
-});
+const errorMessage = ref<string | null>(null);
+const hasGithubUsername = computed(() => githubUsername.value.length > 2);
 
 const isLoading = ref(false);
+const showErrorRegister = ref(false);
 function validateForm() {
   errors.value = []; 
 
   if (!name.value) errors.value.push('O campo Nome é obrigatório.');
+
   if (!email.value) errors.value.push('O campo Email é obrigatório.');
+
+  if (email.value.length < 8) errors.value.push('Insira um email válido.');
   if (!password.value) errors.value.push('O campo Senha é obrigatório.');
+
   if (!confirmPassword.value) errors.value.push('O campo Confirmar Senha é obrigatório.');
   if (password.value && confirmPassword.value && password.value !== confirmPassword.value) {
     errors.value.push('As senhas não coincidem.');
   }
+
 }
-
-const showErrorLogin = ref(false);
 async function submit() {
-  validateForm();
+  isLoading.value = true; 
+  errorMessage.value = null;
 
+  validateForm();
+ 
   if (errors.value.length) {
     console.error('Existem erros no formulário:', errors.value);
     return;
   }
 
-  isLoading.value = true; 
-
-  const data = {
-    name: name.value,
-    email: email.value,
-    password: password.value,
-    githubUsername: githubUsername.value,
-  };
+  if(githubUsername.value.length < 3)
+    githubUsername.value = "--"
+  
 
   try {
-    const response = await axios.post('http://localhost:8000/api/register', data);
-    console.log('Resposta do servidor:', response.data);
-    localStorage.setItem('token', response.data.access_token); 
-    router.push('/home');  
-  } catch (error) {
-    console.error('Erro ao cadastrar:', error);
-    showErrorLogin.value = true;  
+    const response = await authService.register(
+      name.value,
+      email.value,
+      password.value,
+      githubUsername.value
+    );
+
+    console.log('User created successfully:', response.user);
+
+    if (response.user) {
+      try {
+        const response = await authService.login(email.value, password.value);
+        localStorage.setItem('token', response.access_token); 
+        router.push('/home'); 
+      } catch (error) {
+        console.error('Erro ao fazer login:', error);
+      } finally {
+        isLoading.value = false;
+      } 
+
+    }
+  } catch (error: any) {
+    errorMessage.value = error.message; 
+    errors.value.push(errorMessage.value);
+    console.error('Registration error:', error);
+   
   } finally {
-    isLoading.value = false; 
+    isLoading.value = false;
   }
 }
 
