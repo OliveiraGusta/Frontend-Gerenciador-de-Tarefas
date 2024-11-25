@@ -6,6 +6,7 @@
       </CardTitle>
       <CardDescription class="self-center">Primeira vez aqui?<Button variant="link"  @click="goToSignUp">FAÇA SEU CADASTRO</Button></CardDescription>
     </CardHeader>
+    
     <CardContent>
       <h1 class="text-xl font-bold my-4">Perfil</h1>
       <div class="gap-5 flex ">
@@ -67,7 +68,7 @@ import {
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { UserPhoto } from '../ui/userPhoto';
+import { UserPhoto } from '../../ui/userPhoto';
 
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';

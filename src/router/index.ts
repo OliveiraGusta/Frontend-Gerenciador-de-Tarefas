@@ -25,15 +25,18 @@ const router = createRouter({
       path: '/home',
       name: 'dashboard',
       component: DashboardView,
+      meta: { requiresAuth: true },
     },
   ],
 })
 
 router.beforeEach((to, from, next) => {
-  if (to.name) {
-    localStorage.setItem('route', to.name); 
+  const isAuthenticated = localStorage.getItem('token'); 
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next('/login');
+  } else {
+    next(); 
   }
-  next();
 });
 
 export default router

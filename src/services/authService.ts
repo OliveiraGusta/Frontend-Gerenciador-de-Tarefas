@@ -13,8 +13,12 @@ interface User {
   githubUsername: string;
 }
 
+interface RegisterResponse {
+  message: string;
+  user?: User;
+}
+
 export const authService = {
-  
   async login(email: string, password: string): Promise<LoginResponse> {
     const data = { email, password };
     const response = await axios.post<LoginResponse>(`${API_URL}/login`, data);
@@ -32,4 +36,24 @@ export const authService = {
     });
     return response.data;
   },
+
+  async register(
+    name: string,
+    email: string,
+    password: string,
+    githubUsername: string
+  ): Promise<RegisterResponse> {
+    try {
+      const data = { name, email, password, githubUsername };
+      const response = await axios.post<RegisterResponse>(`${API_URL}/register`, data);
+      return response.data;
+    } catch (error: any) {
+      if (error.response) {
+        throw new Error(error.response.data.message || 'Error during registration');
+      }
+      throw error;
+    }
+  },
+
+  
 };
