@@ -21,7 +21,7 @@
                 'font-semibold text-lg line-through text-gray-500': task.status === 2
               }">
                 {{ task.title }}
-                <UpdateTask  :id="task.id" :title="task.title" :description="task.description" :statusTask="task.status"
+                <UpdateTask :id="task.id" :title="task.title" :description="task.description" :statusTask="task.status"
                   :statusTitleTask="getStatusText(task.status)" @taskUpdated="fetchTasks" />
               </p>
               <p :class="getStatusClass(task.status)" class="py-2 rounded-full text-xs font-semibold">
@@ -39,7 +39,7 @@
               <div class="flex space-x-2">
                 <CheckStatusTask :idTask="task.id" :statusTask="task.status" @taskUpdated="fetchTasks" />
               </div>
-              <DeleteTask :idTask="task.id" :title="task.title" />
+              <DeleteTask :idTask="task.id" :title="task.title" @taskDelete="fetchTasks" />
             </div>
           </div>
           <p class="text-sm text-end text-gray-500">

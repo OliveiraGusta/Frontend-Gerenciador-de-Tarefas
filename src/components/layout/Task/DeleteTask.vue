@@ -14,7 +14,7 @@
         <Button v-if="isLoading" disabled>
           <img src="@/assets/icons/AwaitIcon.svg" class="h-6 animate-spin" />Aguarde
         </Button>
-        <Button variant="outline" @click="deleteTask">
+        <Button v-else variant="outline" @click="deleteTask">
           <img src="@/assets/icons/TrashIcon.svg" class="h-6" />Confirmar
         </Button>
       </DialogFooter>
@@ -38,6 +38,9 @@ import {
 } from '@/components/ui/dialog';
 import { TaskModel } from '@/models/TaskModel';
 
+import { defineEmits } from 'vue';
+const emit = defineEmits(['taskDelete']);
+
 const isLoading = ref(false);
 const router = useRouter();
 const { userState } = useUserStore();
@@ -55,7 +58,7 @@ async function deleteTask() {
       throw new Error('Usuário não autenticado.');
     }
     await TaskModel.deleteTask(userState.user.id, props.idTask, token);
-    router.push('/home');
+    emit('taskDelete');
   } catch (error) {
     console.error('Erro ao excluir tarefa:', error);
     alert('Erro ao excluir a tarefa. Tente novamente.');

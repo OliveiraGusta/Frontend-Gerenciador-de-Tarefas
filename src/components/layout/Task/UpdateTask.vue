@@ -1,7 +1,8 @@
 <template>
   <Dialog>
     <DialogTrigger as-child>
-      <Button variant="link"><img src="@/assets/icons/EditIcon.svg" class="h-5 transition-transform duration-200 hover:scale-110"/></Button>
+      <Button variant="link"><img src="@/assets/icons/EditIcon.svg"
+          class="h-5 transition-transform duration-200 hover:scale-110" /></Button>
     </DialogTrigger>
     <DialogContent class="sm:max-w-[425px]">
       <DialogHeader>
@@ -15,19 +16,19 @@
           <div class="my-2">Edite os campos da tarefa e depois salve as alterações.</div>
           <Input type="text" id="title" v-model="localTitle" />
           <Input type="text" id="description" v-model="localDescription" />
-
-          <Select>
-                <SelectTrigger>
-                    <SelectValue  placeholder="Selecione o status da tarefa" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectGroup>
-                        <SelectItem value="0">Pendente</SelectItem>
-                        <SelectItem value="1">Em andamento</SelectItem>
-                        <SelectItem value="2">Concluída</SelectItem>
-                    </SelectGroup>
-                </SelectContent>
-            </Select>
+          <Select v-model="localStatus">
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione o status da tarefa" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="0">Pendente</SelectItem>
+                <SelectItem value="1">Em andamento</SelectItem>
+                <SelectItem value="2">Concluída</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <p>Caso não selecione nenhuma opção de Status, será escolhido automaticamente Pendente</p>
         </DialogDescription>
       </DialogHeader>
       <DialogFooter class="mt-10">
@@ -62,7 +63,7 @@ import {
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { defineProps, ref, onMounted} from 'vue';
+import { defineProps, ref, onMounted } from 'vue';
 import { TaskModel } from '@/models/TaskModel';
 import { defineEmits } from 'vue';
 const emit = defineEmits(['taskUpdated']);
@@ -74,8 +75,8 @@ const props = defineProps({
   statusTitleTask: String,
   statusTask: Number,
 });
-import { useUserStore } from '@/stores/userStore';
 
+import { useUserStore } from '@/stores/userStore';
 const { userState } = useUserStore();
 
 const isLoading = ref(false);
