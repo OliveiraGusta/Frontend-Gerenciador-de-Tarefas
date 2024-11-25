@@ -7,7 +7,7 @@ import {
 
 import ListTasks from '@/components/layout/Task/ListTasks.vue';
 import UserProfile from '@/components/layout/User/UserProfile.vue';
-import AddTask from '@/components/layout/Task/AddTask.vue';
+import CreateTask from '@/components/layout/Task/CreateTask.vue';
 import FilterTaks from '@/components/layout/Task/FilterTaks.vue';
 
 </script>
@@ -19,7 +19,7 @@ import FilterTaks from '@/components/layout/Task/FilterTaks.vue';
       <Card>
         <CardContent class="py-5 flex flex-col gap-5">
           <UserProfile />
-          <AddTask/>
+          <CreateTask />
           <FilterTaks />
         </CardContent>
         <CardFooter>

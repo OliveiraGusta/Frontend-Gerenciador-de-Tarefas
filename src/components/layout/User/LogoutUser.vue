@@ -1,7 +1,7 @@
 <template>
     <Dialog>
         <DialogTrigger as-child>
-        <Button variant="link"><img src="@/assets/icons/LogoutIcon.svg" class="h-6"/></Button>
+        <Button variant="link"><img src="@/assets/icons/LogoutIcon.svg" class="h-6 transition-transform duration-200 hover:scale-110"/></Button>
         </DialogTrigger>
     <DialogContent class="sm:max-w-[425px]">
         <DialogHeader>

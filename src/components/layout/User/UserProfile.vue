@@ -10,7 +10,6 @@
           <Skeleton class="h-5 w-[50px]" />
           <Skeleton class="h-5 w-[50px]" />
         </div>
-        
       </div>
     </div>
     <div v-else-if="userState.error">{{ userState.error }}</div>
