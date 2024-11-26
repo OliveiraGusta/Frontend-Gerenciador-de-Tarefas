@@ -13,7 +13,7 @@
       </div>
 
       <div v-else>
-        <div v-for="(task) in tasks" :key="task.id" class="bg-white border mb-3 p-4 rounded-lg hover:bg-gray-50">
+        <div v-for="task in filteredTasks" :key="task.id" class="bg-white border mb-3 p-4 rounded-lg hover:bg-gray-50">
           <div class="flex justify-between items-center">
             <div>
               <p :class="{
@@ -21,8 +21,14 @@
                 'font-semibold text-lg line-through text-gray-500': task.status === 2
               }">
                 {{ task.title }}
-                <UpdateTask :id="task.id" :title="task.title" :description="task.description" :statusTask="task.status"
-                  :statusTitleTask="getStatusText(task.status)" @taskUpdated="fetchTasks" />
+                <UpdateTask 
+                  :id="task.id" 
+                  :title="task.title" 
+                  :description="task.description" 
+                  :statusTask="task.status"
+                  :statusTitleTask="getStatusText(task.status)" 
+                  @taskUpdated="fetchTasks" 
+                />
               </p>
               <p :class="getStatusClass(task.status)" class="py-2 rounded-full text-xs font-semibold">
                 {{ getStatusText(task.status).toUpperCase() }}
@@ -31,10 +37,7 @@
             </div>
             <div class="flex space-x-2 items-center">
               <p class="text-sm text-gray-500">
-                Criação: {{ new Date(task.created_at).toLocaleString('pt-BR', {
-                  year: 'numeric', month: 'short', day:
-                    'numeric', hour: '2-digit', minute: '2-digit'
-                }) }}
+                Criação: {{ formatDate(task.created_at) }}
               </p>
               <div class="flex space-x-2">
                 <CheckStatusTask :idTask="task.id" :statusTask="task.status" @taskUpdated="fetchTasks" />
@@ -43,11 +46,7 @@
             </div>
           </div>
           <p class="text-sm text-end text-gray-500">
-            Última alteração:
-            {{ new Date(task.updated_at).toLocaleString('pt-BR', {
-              weekday: 'long', year: 'numeric', month: 'long', day:
-                'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
-            }) }}
+            Última alteração: {{ formatDate(task.updated_at) }}
           </p>
         </div>
       </div>
@@ -55,9 +54,8 @@
   </div>
 </template>
 
-
 <script lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useUserStore } from '@/stores/userStore';
@@ -75,7 +73,13 @@ export default {
     CheckStatusTask,
     DeleteTask,
   },
-  setup() {
+  props: {
+    filters: {
+      type: Object,
+      required: true,
+    },
+  },
+  setup(props) {
     const tasks = ref([]);
     const isLoading = ref(true);
     const userStore = useUserStore();
@@ -106,7 +110,7 @@ export default {
       await fetchTasks();
     });
 
-    const getStatusClass = (status: number) => {
+    const getStatusClass = (status) => {
       switch (status) {
         case 0:
           return 'text-red-700';
@@ -119,7 +123,7 @@ export default {
       }
     };
 
-    const getStatusText = (status: number) => {
+    const getStatusText = (status) => {
       switch (status) {
         case 0:
           return "Pendente";
@@ -132,14 +136,41 @@ export default {
       }
     };
 
+    const formatDate = (dateString) => {
+      return new Date(dateString).toLocaleString('pt-BR', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    };
+
+    const filteredTasks = computed(() => {
+      let result = tasks.value;
+      if (props.filters.status !== "-") {
+        result = result.filter(task => task.status == props.filters.status);
+      }
+
+      const { sort, order } = props.filters;
+      result = result.sort((a, b) => {
+        const fieldA = new Date(a[sort]);
+        const fieldB = new Date(b[sort]);
+        return order === 'asc' ? fieldA - fieldB : fieldB - fieldA;
+      });
+
+      return result;
+    });
+
     return {
       tasks,
       isLoading,
       fetchTasks,
-      userStore,
       getStatusText,
       getStatusClass,
+      formatDate,
+      filteredTasks,
     };
-  }
+  },
 };
 </script>
