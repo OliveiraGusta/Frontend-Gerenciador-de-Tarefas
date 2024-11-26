@@ -34,7 +34,7 @@
       <DialogFooter class="mt-10">
         <Button v-if="isLoading" disabled>
           <img src="@/assets/icons/AwaitIcon.svg" class="h-6 animate-spin" />Aguarde</Button>
-        <Button variant="outline" @click="update">
+        <Button variant="outline" V-else @click="update">
           <img src="@/assets/icons/EditIcon.svg" class="h-6" />Salvar edição</Button>
       </DialogFooter>
     </DialogContent>
