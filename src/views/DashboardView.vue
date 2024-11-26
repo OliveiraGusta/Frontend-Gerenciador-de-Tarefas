@@ -6,7 +6,7 @@
         <CardContent class="py-5 flex flex-col gap-5">
           <UserProfile />
           <CreateTask @taskCreated="reloadListTasks" />
-          <FilterTaks />
+          <FilterTaks @filterChanged="updateFilters" />
         </CardContent>
         <CardFooter>
         </CardFooter>
@@ -17,7 +17,7 @@
     <div class="w-4/6">
       <Card>
         <CardContent>
-          <ListTasks :key="listTasksKey" />
+          <ListTasks :key="listTasksKey" :filters="filters"  />
         </CardContent>
         <CardFooter>
         </CardFooter>
@@ -44,5 +44,15 @@ const listTasksKey = ref(0);
 const reloadListTasks = () => {
   listTasksKey.value += 1;
 };
+
+const updateFilters = ({ type, value }) => {
+  filters.value[type] = value;
+};
+
+const filters = ref({
+  status: "-", 
+  sort: 'created_at', 
+  order: 'asc', 
+});
 
 </script>
