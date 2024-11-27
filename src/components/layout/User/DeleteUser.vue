@@ -13,7 +13,7 @@
                 <DialogFooter class="mt-10 text-red-700">
                   <Button v-if="isLoading" disabled>
                     <img src="@/assets/icons/AwaitIcon.svg" class="h-6 animate-spin" />Aguarde</Button>
-                  <Button variant="outline" @click="deleteAccount"><img src="@/assets/icons/TrashIcon.svg" class="h-6"/>Confirmar</Button>
+                  <Button v-else variant="outline" @click="deleteAccount"><img src="@/assets/icons/TrashIcon.svg" class="h-6"/>Confirmar</Button>
                 </DialogFooter>
             </DialogContent>
           </Dialog>

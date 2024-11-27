@@ -10,7 +10,7 @@
     <CardContent>
       <h1 class="text-xl font-bold my-4">Perfil</h1>
       <div class="gap-5 flex ">
-        <UserPhoto/>
+        <UserPhoto />
         <form>
           <Input type="email" v-model="email" class="my-2" placeholder="Seu email" />
           <Input type="password"  v-model="password" class="my-2" placeholder="Sua senha" />

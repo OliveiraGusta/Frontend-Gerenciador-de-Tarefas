@@ -1,6 +1,6 @@
 <template>
   <div class="gap-5 flex items-center border-b pt-4 pb-7">
-    <UserPhoto class="h-32" :githubUsername="githubUsername" :hasGithub="hasGithubUsername" />
+    <UserPhoto class="h-32" :githubUsername="githubUsername" />
     <div v-if="userState.isLoading">
       <div class="flex flex-col gap-2">
         <Skeleton class="h-7 w-[150px]" />
@@ -23,6 +23,7 @@
       </p>
         <DeleteUser/>
         <LogoutUser/>
+        <RedirectDashboard v-if="isAdmin" />
     </div>
   </div>
 </template>
@@ -32,13 +33,17 @@ import { computed, onMounted } from 'vue';
 import { useUserStore } from '@/stores/userStore';
 import { UserPhoto } from '@/components/ui/userPhoto';
 import { Skeleton } from '@/components/ui/skeleton'
+import { useAuthStore } from '@/stores/authStore'
 
 import DeleteUser from '@/components/layout/User/DeleteUser.vue';
 import LogoutUser from '@/components/layout/User/LogoutUser.vue';
+import RedirectDashboard from '@/components/layout/Admin/RedirectDashboard.vue';
 
 const { userState, fetchUser } = useUserStore();
 const githubUsername = computed(() => userState.user?.githubUsername ?? '');
-const hasGithubUsername = computed(() => githubUsername.value.length > 2);
+
+const authStore = useAuthStore();
+const isAdmin = authStore.user?.is_admin
 
 onMounted(() => {
   fetchUser();

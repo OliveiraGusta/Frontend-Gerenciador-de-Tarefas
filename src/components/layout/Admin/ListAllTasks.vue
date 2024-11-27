@@ -14,6 +14,16 @@
 
       <div v-else>
         <div v-for="task in filteredTasks" :key="task.id" class="bg-white border mb-3 p-4 rounded-lg hover:bg-gray-50">
+        
+          <div class="flex items-center gap-3">
+            <UserPhoto :githubUsername="task.user.githubUsername" :size="80" />
+
+            <div class="flex flex-col">
+              <p class="text-sm">{{ task.user.name }}</p>
+              <p class="text-sm">{{ task.user.email }}</p>
+            </div>
+        
+          </div>
           <div class="flex justify-between items-center">
             <div>
               <p :class="{
@@ -27,7 +37,6 @@
                   :description="task.description" 
                   :statusTask="task.status"
                   :statusTitleTask="getStatusText(task.status)" 
-                  :isAdmin="false"
                   @taskUpdated="fetchTasks" 
                 />
               </p>
@@ -61,10 +70,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useUserStore } from '@/stores/userStore';
 import { TaskModel } from '@/models/TaskModel';
+import { UserPhoto } from '@/components/ui/userPhoto';
 
 import UpdateTask from '@/components/layout/Task/UpdateTask.vue';
 import CheckStatusTask from "@/components/layout/Task/CheckStatusTask.vue";
 import DeleteTask from '@/components/layout/Task/DeleteTask.vue';
+
 
 export default {
   components: {
@@ -73,6 +84,7 @@ export default {
     UpdateTask,
     CheckStatusTask,
     DeleteTask,
+    UserPhoto,
   },
   props: {
     filters: {
@@ -90,10 +102,7 @@ export default {
       if (userStore.userState.user && token) {
         isLoading.value = true;
         try {
-          tasks.value = await TaskModel.getTasks(
-            userStore.userState.user.id,
-            token
-          );
+          tasks.value = await TaskModel.AdminGetAllTasks(token);
         } catch (error) {
           console.error("Erro ao buscar tarefas:", error);
         } finally {
@@ -151,6 +160,10 @@ export default {
       let result = tasks.value;
       if (props.filters.status !== "-") {
         result = result.filter(task => task.status == props.filters.status);
+      }
+
+      if (props.filters.user !== "-") {
+        result = result.filter(task => task.user.id == props.filters.user);
       }
 
       const { sort, order } = props.filters;
