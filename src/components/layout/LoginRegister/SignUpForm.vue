@@ -11,7 +11,7 @@
     <CardContent>
       <h1 class="text-xl font-bold my-4">Perfil</h1>
       <div class="gap-5 flex ">
-        <UserPhoto class="h-28" :githubUsername="githubUsername" :hasGithub="hasGithubUsername"  />
+        <UserPhoto :githubUsername="githubUsername" :size="160" />
         <form>
           <Input type="text" v-model="name" class="my-2" placeholder="Seu nome" />
           <Input type="email" v-model="email" class="my-2" placeholder="Seu email" />
@@ -67,7 +67,7 @@ function goToLogin() {
 
 const name = ref('');
 const email = ref('');
-const githubUsername = ref('');
+const githubUsername = ref('-');
 const password = ref('');
 const confirmPassword = ref('');
 const errors = ref<string[]>([]);
@@ -84,6 +84,7 @@ function validateForm() {
   if (!email.value) errors.value.push('O campo Email é obrigatório.');
 
   if (email.value.length < 8) errors.value.push('Insira um email válido.');
+  if (password.value && password.value.length < 8) errors.value.push('A senha deve ter pelo menos 8 caracteres.');
   if (!password.value) errors.value.push('O campo Senha é obrigatório.');
 
   if (!confirmPassword.value) errors.value.push('O campo Confirmar Senha é obrigatório.');
@@ -104,7 +105,7 @@ async function submit() {
   }
 
   if(githubUsername.value.length < 3)
-    githubUsername.value = "--"
+    githubUsername.value = "-"
   
 
   try {
@@ -114,8 +115,6 @@ async function submit() {
       password.value,
       githubUsername.value
     );
-
-    console.log('User created successfully:', response.user);
 
     if (response.user) {
       try {

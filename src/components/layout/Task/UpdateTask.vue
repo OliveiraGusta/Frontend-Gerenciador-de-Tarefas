@@ -31,12 +31,27 @@
           <p>Caso não selecione nenhuma opção de Status, será escolhido automaticamente Pendente</p>
         </DialogDescription>
       </DialogHeader>
+      
       <DialogFooter class="mt-10">
-        <Button v-if="isLoading" disabled>
-          <img src="@/assets/icons/AwaitIcon.svg" class="h-6 animate-spin" />Aguarde</Button>
-        <Button variant="outline" V-else @click="update">
-          <img src="@/assets/icons/EditIcon.svg" class="h-6" />Salvar edição</Button>
+
+        <Button v-if="isLoading && isAdmin" disabled>
+          <img src="@/assets/icons/AwaitIcon.svg" class="h-6 animate-spin" />
+          Aguarde
+        </Button>
+
+        <Button v-else-if="!isAdmin" variant="outline" @click="update">
+          <img src="@/assets/icons/EditIcon.svg" class="h-6" />
+          Salvar edição
+        </Button>
+
+        <Button v-else variant="outline" @click="updateAdmin">
+          <img src="@/assets/icons/EditIcon.svg" class="h-6" />
+          Salvar edição
+        </Button>
+
       </DialogFooter>
+
+     
     </DialogContent>
   </Dialog>
 </template>
@@ -79,6 +94,12 @@ const props = defineProps({
 import { useUserStore } from '@/stores/userStore';
 const { userState } = useUserStore();
 
+
+import { useAuthStore } from '@/stores/authStore'
+const authStore = useAuthStore();
+const isAdmin = authStore.user?.is_admin
+
+
 const isLoading = ref(false);
 const localTitle = ref('');
 const localDescription = ref('');
@@ -88,6 +109,8 @@ onMounted(() => {
   localTitle.value = props.title;
   localDescription.value = props.description;
 });
+
+
 
 
 async function update() {
@@ -106,8 +129,35 @@ async function update() {
       status: localStatus.value,
     };
 
-    console.log(taskData);
+
     await TaskModel.updateTask(userState.user.id, props.id, token, taskData);
+    emit('taskUpdated');
+
+  } catch (error) {
+    console.error('Erro ao atualizar tarefa:', error);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+//Admin
+async function updateAdmin() {
+  isLoading.value = true;
+  const token = localStorage.getItem('token');
+  if (!token || !userState.user) {
+    alert('Usuário não autenticado');
+    isLoading.value = false;
+    return;
+  }
+
+  try {
+    const taskData = {
+      title: localTitle.value,
+      description: localDescription.value,
+      status: localStatus.value,
+    };
+
+    await TaskModel.AdminUpdateTask(props.id, token, taskData);
     emit('taskUpdated');
 
   } catch (error) {

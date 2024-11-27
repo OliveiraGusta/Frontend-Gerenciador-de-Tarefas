@@ -12,6 +12,7 @@ interface Task {
 }
 
 export const TaskModel = {
+
   async createTask(userId: number, token: string, taskData: { title: string; description: string; status: number }): Promise<Task> {
     try {
       const response = await axios.post(`${API_URL}/users/${userId}/tasks`, taskData, {
@@ -47,7 +48,6 @@ export const TaskModel = {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response.data);
       return response.data;
     } catch (error) {
       console.error('Erro ao atualizar tarefa:', error);
@@ -67,6 +67,53 @@ export const TaskModel = {
       console.error('Erro ao excluir tarefa:', error);
       throw error;
     }
+  },
+
+
+  // Admin
+  async AdminGetAllTasks( token: string): Promise<Task[]> {
+    try {
+      const response = await axios.get(`${API_URL}/admin/tasks`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      throw error;
+    }
+  },
+
+  async AdminUpdateTask(taskId: number, token: string, taskData: { title: string; description: string; status: number }): Promise<Task> {
+    try {
+      const response = await axios.put(`${API_URL}/admin/tasks/${taskId}`, taskData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao atualizar tarefa:', error);
+      throw error;
+    }
+  },
+
+  async AdminDeleteTask( taskId: number, token: string): Promise<void> {
+    try {
+      const response = await axios.delete(`${API_URL}/admin/tasks/${taskId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao excluir tarefa:', error);
+      throw error;
+    }
+
   },
 
 

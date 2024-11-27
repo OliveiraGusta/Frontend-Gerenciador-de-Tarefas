@@ -11,12 +11,20 @@
         </DialogDescription>
       </DialogHeader>
       <DialogFooter class="mt-10 text-red-700">
+
         <Button v-if="isLoading" disabled>
           <img src="@/assets/icons/AwaitIcon.svg" class="h-6 animate-spin" />Aguarde
         </Button>
+
+        <Button v-else-if="isAdmin" variant="outline" @click="AdminDeleteTask">
+          <img src="@/assets/icons/TrashIcon.svg" class="h-6" />Confirmar
+        </Button>
+
         <Button v-else variant="outline" @click="deleteTask">
           <img src="@/assets/icons/TrashIcon.svg" class="h-6" />Confirmar
         </Button>
+
+
       </DialogFooter>
     </DialogContent>
   </Dialog>
@@ -45,6 +53,11 @@ const isLoading = ref(false);
 const router = useRouter();
 const { userState } = useUserStore();
 
+import { useAuthStore } from '@/stores/authStore'
+const authStore = useAuthStore();
+const isAdmin = authStore.user?.is_admin
+
+
 const props = defineProps({
   idTask: Number,
   title: String,
@@ -66,4 +79,23 @@ async function deleteTask() {
     isLoading.value = false;
   }
 }
+
+async function AdminDeleteTask() {
+  isLoading.value = true;
+  try {
+    const token = localStorage.getItem('token');
+    if (!token || !userState.user) {
+      throw new Error('Usuário não autenticado.');
+    }
+    await TaskModel.AdminDeleteTask(props.idTask, token);
+    emit('taskDelete');
+  } catch (error) {
+    console.error('Erro ao excluir tarefa:', error);
+    alert('Erro ao excluir a tarefa. Tente novamente.');
+  } finally {
+    isLoading.value = false;
+  }
+}
+  
+
 </script>
